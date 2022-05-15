@@ -1,0 +1,21 @@
+name: Linear SVM Classifier
+description: Trains a Linear SVM Classifier
+
+inputs:
+- {name: Data, type: LocalPath, description: 'Path where data is stored.'}
+outputs:
+- {name: Accuracy, type: Float, description: 'Accuracy metric'}
+
+implementation:
+  container:
+    image: niyushabaghayi/telecom_churn:telecom_churn_svm_revised_1
+    command: [
+      python, svm.py,
+
+      --data,
+      {inputPath: Data},
+
+      --accuracy,
+      {outputPath: Accuracy},
+
+    ]

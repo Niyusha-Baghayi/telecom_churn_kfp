@@ -1,0 +1,21 @@
+name: Random Forest Classifier
+description: Trains a Random Forest Classifier
+
+inputs:
+- {name: Data, type: LocalPath, description: 'Path where data is stored.'}
+outputs:
+- {name: Accuracy, type: Float, description: 'Accuracy metric'}
+
+implementation:
+  container:
+    image: niyushabaghayi/telecom_churn:telecom_churn_random_forest_revised_2
+    command: [
+      python, random_forest.py,
+
+      --data,
+      {inputPath: Data},
+
+      --accuracy,
+      {outputPath: Accuracy},
+
+    ]

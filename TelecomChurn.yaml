@@ -1,0 +1,329 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: telecom-churn-prediction-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.12, pipelines.kubeflow.org/pipeline_compilation_time: '2022-05-14T18:20:56.204007',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Applies Several Models
+      for classification problem.", "name": "Telecom Churn Prediction"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.12}
+spec:
+  entrypoint: telecom-churn-prediction
+  templates:
+  - name: ada-boost-classifier
+    container:
+      args: []
+      command: [python, ada_boost.py, --data, /tmp/inputs/Data/data, --accuracy, /tmp/outputs/Accuracy/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_ada_boost_revised_1
+    inputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: ada-boost-classifier-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: ada-boost-classifier-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          an Ada Boost Classifier", "implementation": {"container": {"command": ["python",
+          "ada_boost.py", "--data", {"inputPath": "Data"}, "--accuracy", {"outputPath":
+          "Accuracy"}], "image": "niyushabaghayi/telecom_churn:telecom_churn_ada_boost_revised_1"}},
+          "inputs": [{"description": "Path where data is stored.", "name": "Data",
+          "type": "LocalPath"}], "name": "Ada Boost Classifier", "outputs": [{"description":
+          "Accuracy metric", "name": "Accuracy", "type": "Float"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "5945e38272659ce223a055d30a8ae8aafc9120a2cc2871077b97aee556640048", "url":
+          "ada_boost/ada_boost.yaml"}'}
+  - name: ingestion-function
+    container:
+      args: []
+      command: [python, ingestion.py, --data_raw, /tmp/outputs/DataRaw/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_ingestion_revised_2
+    outputs:
+      artifacts:
+      - {name: ingestion-function-DataRaw, path: /tmp/outputs/DataRaw/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Download
+          Telecom_Churn Dataset from DockerContainer", "implementation": {"container":
+          {"command": ["python", "ingestion.py", "--data_raw", {"outputPath": "DataRaw"}],
+          "image": "niyushabaghayi/telecom_churn:telecom_churn_ingestion_revised_2"}},
+          "name": "Ingestion Function", "outputs": [{"description": "Path where data_raw
+          will be stored.", "name": "DataRaw", "type": "LocalPath"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "89bd8bb405207460975a6c96df6f5b8cc016e2267280de8038ce13444b6b7653", "url":
+          "ingestion/ingestion.yaml"}'}
+  - name: linear-svm-classifier
+    container:
+      args: []
+      command: [python, svm.py, --data, /tmp/inputs/Data/data, --accuracy, /tmp/outputs/Accuracy/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_svm_revised_1
+    inputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: linear-svm-classifier-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: linear-svm-classifier-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          a Linear SVM Classifier", "implementation": {"container": {"command": ["python",
+          "svm.py", "--data", {"inputPath": "Data"}, "--accuracy", {"outputPath":
+          "Accuracy"}], "image": "niyushabaghayi/telecom_churn:telecom_churn_svm_revised_1"}},
+          "inputs": [{"description": "Path where data is stored.", "name": "Data",
+          "type": "LocalPath"}], "name": "Linear SVM Classifier", "outputs": [{"description":
+          "Accuracy metric", "name": "Accuracy", "type": "Float"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "083af1555123f7e612f559f1c46004949b2306061120dd552f810f13449d4a0f", "url":
+          "svm/svm.yaml"}'}
+  - name: logistic-regression-classifier
+    container:
+      args: []
+      command: [python, logistic_regression.py, --data, /tmp/inputs/Data/data, --accuracy,
+        /tmp/outputs/Accuracy/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_logistic_regression_revised_1
+    inputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: logistic-regression-classifier-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: logistic-regression-classifier-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          a Logistic Regression Classifier", "implementation": {"container": {"command":
+          ["python", "logistic_regression.py", "--data", {"inputPath": "Data"}, "--accuracy",
+          {"outputPath": "Accuracy"}], "image": "niyushabaghayi/telecom_churn:telecom_churn_logistic_regression_revised_1"}},
+          "inputs": [{"description": "Path where data is stored.", "name": "Data",
+          "type": "LocalPath"}], "name": "Logistic Regression Classifier", "outputs":
+          [{"description": "Accuracy metric", "name": "Accuracy", "type": "Float"}]}',
+        pipelines.kubeflow.org/component_ref: '{"digest": "ec106e8ef201499281c48566356ac13570e1e142484bf692410754511b526148",
+          "url": "logistic_regression/logistic_regression.yaml"}'}
+  - name: preprocessing-train-data
+    container:
+      args: []
+      command: [python, preprocess.py, --data_raw, /tmp/inputs/DataRaw/data, --data,
+        /tmp/outputs/Data/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_preprocess_revised_6
+    inputs:
+      artifacts:
+      - {name: ingestion-function-DataRaw, path: /tmp/inputs/DataRaw/data}
+    outputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/outputs/Data/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Preprocessing
+          Train Data", "implementation": {"container": {"command": ["python", "preprocess.py",
+          "--data_raw", {"inputPath": "DataRaw"}, "--data", {"outputPath": "Data"}],
+          "image": "niyushabaghayi/telecom_churn:telecom_churn_preprocess_revised_6"}},
+          "inputs": [{"description": "Path where data_raw will be stored.", "name":
+          "DataRaw", "type": "LocalPath"}], "name": "Preprocessing Train Data", "outputs":
+          [{"description": "Path where data will be stored.", "name": "Data", "type":
+          "LocalPath"}]}', pipelines.kubeflow.org/component_ref: '{"digest": "5511cc382f7bcbd178a7e1bb0d9f6097c612347a30f2960d7ce1a4c5c6f30ec1",
+          "url": "preprocess/preprocess.yaml"}'}
+  - name: random-forest-classifier
+    container:
+      args: []
+      command: [python, random_forest.py, --data, /tmp/inputs/Data/data, --accuracy,
+        /tmp/outputs/Accuracy/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_random_forest_revised_2
+    inputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: random-forest-classifier-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: random-forest-classifier-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          a Random Forest Classifier", "implementation": {"container": {"command":
+          ["python", "random_forest.py", "--data", {"inputPath": "Data"}, "--accuracy",
+          {"outputPath": "Accuracy"}], "image": "niyushabaghayi/telecom_churn:telecom_churn_random_forest_revised_2"}},
+          "inputs": [{"description": "Path where data is stored.", "name": "Data",
+          "type": "LocalPath"}], "name": "Random Forest Classifier", "outputs": [{"description":
+          "Accuracy metric", "name": "Accuracy", "type": "Float"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "5d5dd5ba16f9ad08f940f690e81d415eef779de3fc12d33356a6b27e9b7fc99e", "url":
+          "random_forest/random_forest.yaml"}'}
+  - name: show-results
+    container:
+      args: [--ada-boost, '{{inputs.parameters.ada-boost-classifier-Accuracy}}', --logistic-regression,
+        '{{inputs.parameters.logistic-regression-classifier-Accuracy}}', --random-forest,
+        '{{inputs.parameters.random-forest-classifier-Accuracy}}', --svm, '{{inputs.parameters.linear-svm-classifier-Accuracy}}',
+        --xg-boost, '{{inputs.parameters.xgboost-classifier-Accuracy}}']
+      command:
+      - sh
+      - -ec
+      - |
+        program_path=$(mktemp)
+        printf "%s" "$0" > "$program_path"
+        python3 -u "$program_path" "$@"
+      - |
+        def show_results(ada_boost, logistic_regression, random_forest, svm, xg_boost):
+            # Given the outputs from decision_tree and logistic regression components
+            # the results are shown.
+
+            print(f"Ada Boost (accuracy): {ada_boost}")
+            print(f"Logistic regression (accuracy): {logistic_regression}")
+            print(f"Random Forest (accuracy): {random_forest}")
+            print(f"SVM (accuracy): {svm}")
+            print(f"XG Boost (accuracy): {xg_boost}")
+
+        import argparse
+        _parser = argparse.ArgumentParser(prog='Show results', description='')
+        _parser.add_argument("--ada-boost", dest="ada_boost", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--logistic-regression", dest="logistic_regression", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--random-forest", dest="random_forest", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--svm", dest="svm", type=float, required=True, default=argparse.SUPPRESS)
+        _parser.add_argument("--xg-boost", dest="xg_boost", type=float, required=True, default=argparse.SUPPRESS)
+        _parsed_args = vars(_parser.parse_args())
+
+        _outputs = show_results(**_parsed_args)
+      image: python:3.7
+    inputs:
+      parameters:
+      - {name: ada-boost-classifier-Accuracy}
+      - {name: linear-svm-classifier-Accuracy}
+      - {name: logistic-regression-classifier-Accuracy}
+      - {name: random-forest-classifier-Accuracy}
+      - {name: xgboost-classifier-Accuracy}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"implementation": {"container":
+          {"args": ["--ada-boost", {"inputValue": "ada_boost"}, "--logistic-regression",
+          {"inputValue": "logistic_regression"}, "--random-forest", {"inputValue":
+          "random_forest"}, "--svm", {"inputValue": "svm"}, "--xg-boost", {"inputValue":
+          "xg_boost"}], "command": ["sh", "-ec", "program_path=$(mktemp)\nprintf \"%s\"
+          \"$0\" > \"$program_path\"\npython3 -u \"$program_path\" \"$@\"\n", "def
+          show_results(ada_boost, logistic_regression, random_forest, svm, xg_boost):\n    #
+          Given the outputs from decision_tree and logistic regression components\n    #
+          the results are shown.\n\n    print(f\"Ada Boost (accuracy): {ada_boost}\")\n    print(f\"Logistic
+          regression (accuracy): {logistic_regression}\")\n    print(f\"Random Forest
+          (accuracy): {random_forest}\")\n    print(f\"SVM (accuracy): {svm}\")\n    print(f\"XG
+          Boost (accuracy): {xg_boost}\")\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Show
+          results'', description='''')\n_parser.add_argument(\"--ada-boost\", dest=\"ada_boost\",
+          type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--logistic-regression\",
+          dest=\"logistic_regression\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--random-forest\",
+          dest=\"random_forest\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--svm\",
+          dest=\"svm\", type=float, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--xg-boost\",
+          dest=\"xg_boost\", type=float, required=True, default=argparse.SUPPRESS)\n_parsed_args
+          = vars(_parser.parse_args())\n\n_outputs = show_results(**_parsed_args)\n"],
+          "image": "python:3.7"}}, "inputs": [{"name": "ada_boost", "type": "Float"},
+          {"name": "logistic_regression", "type": "Float"}, {"name": "random_forest",
+          "type": "Float"}, {"name": "svm", "type": "Float"}, {"name": "xg_boost",
+          "type": "Float"}], "name": "Show results"}', pipelines.kubeflow.org/component_ref: '{}',
+        pipelines.kubeflow.org/arguments.parameters: '{"ada_boost": "{{inputs.parameters.ada-boost-classifier-Accuracy}}",
+          "logistic_regression": "{{inputs.parameters.logistic-regression-classifier-Accuracy}}",
+          "random_forest": "{{inputs.parameters.random-forest-classifier-Accuracy}}",
+          "svm": "{{inputs.parameters.linear-svm-classifier-Accuracy}}", "xg_boost":
+          "{{inputs.parameters.xgboost-classifier-Accuracy}}"}'}
+  - name: telecom-churn-prediction
+    dag:
+      tasks:
+      - name: ada-boost-classifier
+        template: ada-boost-classifier
+        dependencies: [preprocessing-train-data]
+        arguments:
+          artifacts:
+          - {name: preprocessing-train-data-Data, from: '{{tasks.preprocessing-train-data.outputs.artifacts.preprocessing-train-data-Data}}'}
+      - {name: ingestion-function, template: ingestion-function}
+      - name: linear-svm-classifier
+        template: linear-svm-classifier
+        dependencies: [preprocessing-train-data]
+        arguments:
+          artifacts:
+          - {name: preprocessing-train-data-Data, from: '{{tasks.preprocessing-train-data.outputs.artifacts.preprocessing-train-data-Data}}'}
+      - name: logistic-regression-classifier
+        template: logistic-regression-classifier
+        dependencies: [preprocessing-train-data]
+        arguments:
+          artifacts:
+          - {name: preprocessing-train-data-Data, from: '{{tasks.preprocessing-train-data.outputs.artifacts.preprocessing-train-data-Data}}'}
+      - name: preprocessing-train-data
+        template: preprocessing-train-data
+        dependencies: [ingestion-function]
+        arguments:
+          artifacts:
+          - {name: ingestion-function-DataRaw, from: '{{tasks.ingestion-function.outputs.artifacts.ingestion-function-DataRaw}}'}
+      - name: random-forest-classifier
+        template: random-forest-classifier
+        dependencies: [preprocessing-train-data]
+        arguments:
+          artifacts:
+          - {name: preprocessing-train-data-Data, from: '{{tasks.preprocessing-train-data.outputs.artifacts.preprocessing-train-data-Data}}'}
+      - name: show-results
+        template: show-results
+        dependencies: [ada-boost-classifier, linear-svm-classifier, logistic-regression-classifier,
+          random-forest-classifier, xgboost-classifier]
+        arguments:
+          parameters:
+          - {name: ada-boost-classifier-Accuracy, value: '{{tasks.ada-boost-classifier.outputs.parameters.ada-boost-classifier-Accuracy}}'}
+          - {name: linear-svm-classifier-Accuracy, value: '{{tasks.linear-svm-classifier.outputs.parameters.linear-svm-classifier-Accuracy}}'}
+          - {name: logistic-regression-classifier-Accuracy, value: '{{tasks.logistic-regression-classifier.outputs.parameters.logistic-regression-classifier-Accuracy}}'}
+          - {name: random-forest-classifier-Accuracy, value: '{{tasks.random-forest-classifier.outputs.parameters.random-forest-classifier-Accuracy}}'}
+          - {name: xgboost-classifier-Accuracy, value: '{{tasks.xgboost-classifier.outputs.parameters.xgboost-classifier-Accuracy}}'}
+      - name: xgboost-classifier
+        template: xgboost-classifier
+        dependencies: [preprocessing-train-data]
+        arguments:
+          artifacts:
+          - {name: preprocessing-train-data-Data, from: '{{tasks.preprocessing-train-data.outputs.artifacts.preprocessing-train-data-Data}}'}
+  - name: xgboost-classifier
+    container:
+      args: []
+      command: [python, svm.py, --data, /tmp/inputs/Data/data, --accuracy, /tmp/outputs/Accuracy/data]
+      image: niyushabaghayi/telecom_churn:telecom_churn_xgboost_revised_1
+    inputs:
+      artifacts:
+      - {name: preprocessing-train-data-Data, path: /tmp/inputs/Data/data}
+    outputs:
+      parameters:
+      - name: xgboost-classifier-Accuracy
+        valueFrom: {path: /tmp/outputs/Accuracy/data}
+      artifacts:
+      - {name: xgboost-classifier-Accuracy, path: /tmp/outputs/Accuracy/data}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.12
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+      annotations: {pipelines.kubeflow.org/component_spec: '{"description": "Trains
+          a XGBoost Classifier", "implementation": {"container": {"command": ["python",
+          "svm.py", "--data", {"inputPath": "Data"}, "--accuracy", {"outputPath":
+          "Accuracy"}], "image": "niyushabaghayi/telecom_churn:telecom_churn_xgboost_revised_1"}},
+          "inputs": [{"description": "Path where data is stored.", "name": "Data",
+          "type": "LocalPath"}], "name": "XGBoost Classifier", "outputs": [{"description":
+          "Accuracy metric", "name": "Accuracy", "type": "Float"}]}', pipelines.kubeflow.org/component_ref: '{"digest":
+          "d563caa848838279582f99f8504b9f318b73f114bc6366566dd250c68527164c", "url":
+          "xg_boost/xg_boost.yaml"}'}
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

@@ -1,0 +1,21 @@
+name: Ada Boost Classifier
+description: Trains an Ada Boost Classifier
+
+inputs:
+- {name: Data, type: LocalPath, description: 'Path where data is stored.'}
+outputs:
+- {name: Accuracy, type: Float, description: 'Accuracy metric'}
+
+implementation:
+  container:
+    image: niyushabaghayi/telecom_churn:telecom_churn_ada_boost_revised_1
+    command: [
+      python, ada_boost.py,
+
+      --data,
+      {inputPath: Data},
+
+      --accuracy,
+      {outputPath: Accuracy},
+
+    ]

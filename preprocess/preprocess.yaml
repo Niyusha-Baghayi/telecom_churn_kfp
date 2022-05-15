@@ -1,0 +1,21 @@
+name: Preprocessing Train Data
+description: Preprocessing Train Data
+
+inputs:
+- {name: DataRaw, type: LocalPath, description: 'Path where data_raw will be stored.'}
+outputs:
+- {name: Data, type: LocalPath, description: 'Path where data will be stored.'}
+
+implementation:
+  container:
+    image: niyushabaghayi/telecom_churn:telecom_churn_preprocess_revised_6
+    command: [
+      python, preprocess.py,
+
+      --data_raw,
+      {inputPath: DataRaw},
+
+      --data,
+      {outputPath: Data},
+
+    ]
